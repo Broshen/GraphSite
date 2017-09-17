@@ -1,0 +1,81 @@
+{% extends 'GraphDisplay/application.html' %}
+{% block content %}
+<div class="row">
+    <div class="col col-sm-12 col-md-8">
+        <h3>My Jobs</h3>
+    </div>
+    <div class="col col-sm-12 col-md-4">
+        <a href="{% url 'GraphDisplay:job_new' %}" class="float-right">New Job</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col col-xs-12">
+        <table class="table table-hover">
+            <thead class="thead-inverse">
+                <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Last Modified</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            	{% for job in graph_jobs %}
+                <tr>
+                    <td>{{job.name}}</td>
+                    <td>{{job.status}}</td>
+                    <td>{{job.created}}</td>
+                    <td>{{job.last_modified}}</td>
+                    <th><a href="{% url 'GraphDisplay:job_view' job.id %}"> View</a></th>
+                    <th><a href="{% url 'GraphDisplay:job_form' job.id %}"> Edit</a></th>
+                    <th><a href="#" onclick="openDeleteModal('{% url 'GraphDisplay:job_delete' job.id %}', '{{job.name}}')">Delete</a></th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="delete_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Job</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            <p> Are you sure you want to delete job <b id="delete_form_job_name"> </b>?</p>
+                <form id="delete_form" action="" method="post" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onClick="submitDeleteForm()">Delete</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+function openDeleteModal(url, name){
+    $("#delete_form").attr("action", url);
+    $("#delete_form_job_name").text(name);
+    $("#delete_modal").modal('show')
+}
+
+function submitDeleteForm(){
+    $("#delete_form button").click()
+}
+</script>
+{% endblock %}

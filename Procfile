@@ -1,0 +1,1 @@
+web: gunicorn GraphSite.wsgi --log-file -

@@ -1,0 +1,18 @@
+<table class="table table-hover table-sm">
+    <thead>
+        <tr>
+            <th>Graph Name</th>
+            <th>Created</th>
+            <th>Last Modified</th>
+        </tr>
+    </thead>
+    <tbody id="graph-file-choices-table-body">
+        {% for file in files %}
+        <tr onClick="selectFile({{file.pk}}, this)">
+            <td><a href="{{file.file.url}}" target="blank">{{file.file_name}}</a></td>
+            <td>{{file.created}}</td>
+            <td>{{file.last_modified}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

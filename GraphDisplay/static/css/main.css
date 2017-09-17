@@ -1,0 +1,49 @@
+.container.content{
+    padding-top: 100px;
+}
+
+.fixed-center{
+	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.alert{
+    position: fixed;
+    z-index: 100000;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 50px;
+}
+
+#graph-metrics-choices .btn-group{
+	padding: 5px 0;
+	/*display: block;*/
+}
+
+#graph-name .form-control, #graph-metrics-choices .form-control{
+	display: inline;
+	width: auto;
+}
+
+#graph-metrics-choices .pad{
+	padding: 5px 0;
+}
+
+#graph-metrics-choices .info{
+    font-size: 0.8rem;
+}
+
+
+#graph-metrics-descriptions{
+	text-align: right;
+}
+
+#graph-metrics-info{
+	font-size: 2.5rem;
+	color: lightgray;
+}
+
+#graph-metrics-info:hover{
+	color: blue;
+}

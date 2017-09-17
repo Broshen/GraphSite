@@ -1,0 +1,100 @@
+{% extends 'GraphDisplay/application.html' %}
+{% block content %}
+	
+	<h3> Job: {{object.name}} </h3>
+	<div>Status:	{{object.status}}</div>
+	<div>Created: {{object.created}}</div>
+	<div>Last Modified: {{object.last_modified}}</div>
+	<div>Graphs:
+	{% include 'GraphDisplay/_graph_file_choices.html' with files=object.graph_file.all %}
+	</div>
+	<div id="metrics">
+		<table class="table table-hover table-sm">
+		    <thead>
+		        <tr>
+		        	<th>Metrics</th>
+		        	<th></th>
+		        </tr>
+		    </thead>
+		    <tbody id="metrics-table-body">
+		    </tbody>
+		</table>
+
+
+	</div>
+
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+function loadMetrics(){
+	var metricsJSON = JSON.parse("{{object.metrics | escapejs }}")
+	console.log(metricsJSON)
+
+	$.each(metricsJSON, function(key, val){
+
+		if(key === "dist"){				
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>From vertex " + val[0] + " to vertex " + val[1] + "</td></tr>"
+				)
+		}
+		else if(key === "reduce"){
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>Selected " + val 
+				+ " verticies to keep</td></tr>"
+				)
+		}	
+		else if(key === "reducetree"){
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>Selected verticies used as roots:  " + val.join(",") 
+				+ "</td></tr>"
+				)
+		}	
+		else if(key === "reducetreetop"){
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>Selected top " + val 
+				+ " verticies to use as roots</td></tr>"
+				)
+		}
+		else if(key === "reducetri"){
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>Selected " + val 
+				+ " edges to keep for each vertex</td></tr>"
+				)
+		}
+		else if(key === "reducepercent"){
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>Selected " + val 
+				+ "% of edges to keep for each vertex</td></tr>"
+				)
+		}
+		else if(val){
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td>Selected vertex:  " + val
+				+ "</td></tr>"
+				)
+		}
+		else{
+			$("#metrics-table-body").append(
+				"<tr><td>"+ key +"</td>"
+				+"<td></td></tr>"
+				)
+		}
+	});
+}
+
+$(document).ready(loadMetrics())
+</script>
+
+{% endblock %}

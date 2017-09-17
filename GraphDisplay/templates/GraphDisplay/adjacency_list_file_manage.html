@@ -1,0 +1,108 @@
+{% extends 'GraphDisplay/application.html' %}
+{% block content %}
+<form action="{{upload_url}}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file_field" multiple="" required="" id="id_file_field">
+    <button type="submit" class="btn btn-primary float-right">Upload</button>
+</form>
+<table class="table table-hover">
+    <thead class="thead-inverse">
+        <tr>
+            <th>Graph Name</th>
+            <th>Created</th>
+            <th>Last Modified</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td>{{file.file_name}}</td>
+            <td>{{file.created}}</td>
+            <td>{{file.last_modified}}</td>
+
+            <th><a href="{{file.file.url}}" target="blank">View</a></th>
+            <th><a href="#" onclick="openUpdateModal('{% url 'GraphDisplay:graph_update' file.id %}')">Update</a></th>
+
+            <th><a href="#" onclick="openDeleteModal('{% url 'GraphDisplay:graph_delete' file.id %}', '{{file.file_name}}')">Delete</a></th>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="update_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="update_form" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div>
+                        <input type="file" name="file_field" required="" id="id_file_field">
+                    </div>
+                    <button type="submit" style="display: none;">Update</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onClick="submitUpdateForm()">Update</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            <p> Are you sure you want to delete <b id="delete_form_file_name"> </b>?</p>
+                <form id="delete_form" action="" method="post" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onClick="submitDeleteForm()">Delete</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+function openUpdateModal(url){
+	$("#update_form").attr("action", url);
+	$("#update_modal").modal('show')
+}
+
+function submitUpdateForm(){
+	$("#update_form button").click()
+}
+
+function openDeleteModal(url, file_name){
+	$("#delete_form").attr("action", url);
+	$("#delete_form_file_name").text(file_name);
+	$("#delete_modal").modal('show')
+}
+
+function submitDeleteForm(){
+	$("#delete_form button").click()
+}
+</script>
+{% endblock %}

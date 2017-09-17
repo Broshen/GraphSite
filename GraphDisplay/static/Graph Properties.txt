@@ -1,0 +1,5 @@
+File: ./graph_data/5.txt
+Approx Betweenness Centrality 0
+Approx Diameter: 3
+File: ./graph_data/5.txt
+Approx Diameter: 3
