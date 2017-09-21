@@ -5,6 +5,7 @@ from django.views.generic import TemplateView, DetailView, FormView, UpdateView,
 from django import forms
 from .models import GraphJob, AdjacencyListFile
 from .forms import ALFileForm
+from .tasks import add
 import subprocess
 import json
 
@@ -67,11 +68,14 @@ class GraphJobCreateView(CreateView, GraphJobInterface):
 
 		return HttpResponseRedirect(self.get_success_url())
 
-		
-
 class GraphJobManageView(TemplateView):
 	template_name = "GraphDisplay/dashboard.html"
 	fields = ['name', 'metrics', 'graph_file',]
+
+	def get(self, request, *args, **kwargs):
+		print("git git get")
+		add.delay(4, 4)
+		return super(GraphJobManageView, self).get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		context = super(GraphJobManageView, self).get_context_data(**kwargs)
@@ -84,14 +88,12 @@ class GraphJobUpdateView(UpdateView, GraphJobInterface):
 	success_url = reverse_lazy("GraphDisplay:dashboard")
 	template_name = "GraphDisplay/graph_job_form.html"
 
-
 	def post(self, request, *args, **kwargs):
 		super(GraphJobUpdateView, self).post(request, *args, **kwargs)
 		self.object.job_input = self.create_commands(
 										self.object.metrics,
 										self.object.graph_file.values_list('file', flat=True))
 		self.object.save()
-
 		return HttpResponseRedirect(self.get_success_url())
 
 class GraphJobDetailView(DetailView):
