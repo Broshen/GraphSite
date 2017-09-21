@@ -15,7 +15,6 @@ app = Celery('GraphSite')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-print(config('REDIS_URL'))
 app.conf.update(BROKER_URL=config('REDIS_URL'),
                 CELERY_RESULT_BACKEND=config('REDIS_URL'))
 
