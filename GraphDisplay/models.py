@@ -4,6 +4,7 @@ from django.db import models
 class GraphJob(models.Model):
 	name = models.CharField(max_length=255)
 	status = models.CharField(max_length=255, default="Not Running")
+	celery_task_id = models.TextField(default="")
 	created = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	metrics = models.TextField() # stores the metrics JSON from the form

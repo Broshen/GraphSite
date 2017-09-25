@@ -5,16 +5,10 @@ from django.views.generic import TemplateView, DetailView, FormView, UpdateView,
 from django import forms
 from .models import GraphJob, AdjacencyListFile
 from .forms import ALFileForm
-from .tasks import add
-import subprocess
+from .tasks import run_exe
+from celery import uuid
+from celery.task.control import revoke
 import json
-
-def run_exe(request):
-	# inputfile = open('./GraphDisplay/static/test_commands/test0.in')
-	# #print(inputfile.read())
-	# p = subprocess.Popen('./GraphDisplay/static/GraphProfile.exe', stdin=inputfile)
-	# inputfile.close()
-	return HttpResponseRedirect(reverse("GraphDisplay:tasks"))
 
 def view_tasks(request):
 	# outputfile = open('./Graph Properties.txt')
@@ -27,15 +21,13 @@ def view_tasks(request):
 class GraphJobInterface():
 	# takes a string representing the JSON object 
 	# and outputs a list of commands to pipe into the executable
-	@staticmethod
-	def create_commands(metrics_string, files):
-		metrics_JSON = json.loads(metrics_string)
+	def create_commands(self):
+		metrics_JSON = json.loads(self.object.metrics)
 
 		commands = ""
 		
-		for file in files:
-			commands += file +"\n"
-
+		for gf_obj in self.object.graph_file.all():
+			commands += "." + gf_obj.file.url +"\n"
 			for key, val in metrics_JSON.items():
 				commands += key+"\n"
 				if(isinstance(val, str)):
@@ -51,7 +43,24 @@ class GraphJobInterface():
 			commands += "exit\n"
 			
 		commands += "exit\n"
-		return commands
+
+		self.object.job_input = commands
+		self.object.save()
+
+	def toggle_job(self):
+		# if task is currently running, get id and stop it
+		if(self.object.status == "Running" or self.object.status == "Queued"):
+			revoke(self.object.celery_task_id, terminate=True)
+			self.object.status = "Stopped"
+			self.object.save()
+		else:
+			self.object.status = "Queued"
+			self.object.celery_task_id = uuid()
+			self.object.save()
+			run_exe.apply_async(args=[self.object.pk], task_id=self.object.celery_task_id)
+
+		# otherwise, queue the task
+
 
 class GraphJobCreateView(CreateView, GraphJobInterface):
 	model = GraphJob
@@ -61,11 +70,7 @@ class GraphJobCreateView(CreateView, GraphJobInterface):
 
 	def post(self, request, *args, **kwargs):
 		super(GraphJobCreateView, self).post(request, *args, **kwargs)
-		self.object.job_input = self.create_commands(
-										self.object.metrics,
-										self.object.graph_file.values_list('file', flat=True))
-		self.object.save()
-
+		self.create_commands()
 		return HttpResponseRedirect(self.get_success_url())
 
 class GraphJobManageView(TemplateView):
@@ -73,8 +78,6 @@ class GraphJobManageView(TemplateView):
 	fields = ['name', 'metrics', 'graph_file',]
 
 	def get(self, request, *args, **kwargs):
-		print("git git get")
-		add.delay(4, 4)
 		return super(GraphJobManageView, self).get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
@@ -90,16 +93,28 @@ class GraphJobUpdateView(UpdateView, GraphJobInterface):
 
 	def post(self, request, *args, **kwargs):
 		super(GraphJobUpdateView, self).post(request, *args, **kwargs)
-		self.object.job_input = self.create_commands(
-										self.object.metrics,
-										self.object.graph_file.values_list('file', flat=True))
-		self.object.save()
+		self.create_commands()
+
 		return HttpResponseRedirect(self.get_success_url())
 
-class GraphJobDetailView(DetailView):
+class GraphJobDetailView(DetailView, GraphJobInterface):
 	model = GraphJob
 	template_name = "GraphDisplay/graph_job_view.html"
 
+	def post(self, request, *args, **kwargs):
+		self.object = self.get_object()
+		self.toggle_job()
+		return HttpResponseRedirect(reverse("GraphDisplay:job_view", kwargs=kwargs))
+
+	def get_context_data(self, **kwargs):
+		context = super(GraphJobDetailView, self).get_context_data(**kwargs)
+
+		if(self.object.status == "Not Running" or self.object.status == "Finished" or self.object.status == "Stopped"):
+			context["action"] = "Start"
+		else:
+			context["action"] = "Stop"
+
+		return context
 
 class GraphJobDeleteView(DeleteView):
 	model = GraphJob

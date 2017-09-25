@@ -1,18 +1,22 @@
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
-
-
-@shared_task
-def add(x, y):
-    print("HNGNNGNG")
-    return x + y
-
+from .models import GraphJob, AdjacencyListFile
+import subprocess
 
 @shared_task
-def mul(x, y):
-    return x * y
+def run_exe(pk):
+    job = GraphJob.objects.get(pk=pk)
+    job.status = "Running"
+    job.save()
 
+    p = subprocess.Popen('./media/executables/GraphProfile.exe',
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+        encoding='ascii')
 
-@shared_task
-def xsum(numbers):
-    return sum(numbers)
+    p.communicate(input=job.job_input)
+
+    job.status = "Finished"
+    job.save()
+    return
+
