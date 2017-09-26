@@ -19,8 +19,25 @@
             <tbody id="metrics-table-body">
             </tbody>
         </table>
+    </div>
 
-
+    <div id="results">
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Results</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="results-table-body">
+                {% for result in object.results.all %}
+                <tr>
+                    <td>{{result.file.name}}</td>
+                    <td><a href="{{result.file.url}}">view</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <form action="" method="post">

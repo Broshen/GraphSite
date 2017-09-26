@@ -10,6 +10,7 @@ class GraphJob(models.Model):
 	metrics = models.TextField() # stores the metrics JSON from the form
 	job_input = models.TextField() # actual input to feed into GraphProfile 
 	graph_file = models.ManyToManyField('AdjacencyListFile')
+	results = models.ManyToManyField('ResultFile')
 
 class AdjacencyListFile(models.Model):
 	file_name = models.CharField(max_length=255)
@@ -19,6 +20,10 @@ class AdjacencyListFile(models.Model):
 
 	def __str__ (self):
 		return self.file_name
+
+class ResultFile(models.Model):
+	created = models.DateTimeField(auto_now_add=True)
+	file = models.FileField(upload_to='results/')
 
 # class ExperimentMetrics(models.Model):
 # 	abc - 1 entry (vertex) - outputs number

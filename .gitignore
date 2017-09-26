@@ -1,6 +1,12 @@
-db.sqlite3
+# files generated in development
 /media/uploads/*
+/media/results/*
 
+# redis dump file
+dump.rdb
+
+# standard django stuff to ignore
+db.sqlite3
 *.egg-info
 *.pot
 *.py[co]

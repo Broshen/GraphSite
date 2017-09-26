@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, DetailView, FormView, UpdateView, DeleteView, CreateView
 from django import forms
-from .models import GraphJob, AdjacencyListFile
+from .models import GraphJob, AdjacencyListFile, ResultFile
 from .forms import ALFileForm
 from .tasks import run_exe
 from celery import uuid
@@ -108,7 +108,6 @@ class GraphJobDetailView(DetailView, GraphJobInterface):
 
 	def get_context_data(self, **kwargs):
 		context = super(GraphJobDetailView, self).get_context_data(**kwargs)
-
 		if(self.object.status == "Not Running" or self.object.status == "Finished" or self.object.status == "Stopped"):
 			context["action"] = "Start"
 		else:
