@@ -45,14 +45,31 @@
             </thead>
             <tbody id="results-table-body">
                 {% for result in object.results.all %}
-                <tr>
+                <tr onclick="openResultModal('{{result.file.name | escapejs}}', '{{result.file.url | escapejs}}')">
                     <td>{{result.file.name}}</td>
-                    <td><a href="{{result.file.url}}">view</a></td>
+                    <td><a href="{{result.file.url}}" target="blank">view file</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+
+    <div class="modal fade result-modal" id="result-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><a target="blank"></a></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+      </div>
+    </div>
+
 
 
 {% endblock %}
@@ -62,7 +79,6 @@
 <script>
 function loadMetrics(){
     var metricsJSON = JSON.parse("{{object.metrics | escapejs }}")
-    console.log(metricsJSON)
 
     $.each(metricsJSON, function(key, val){
 
@@ -124,6 +140,28 @@ function loadMetrics(){
 }
 
 $(document).ready(loadMetrics())
+
+function openResultModal(filename, fileurl){
+
+    var modalMessage = ""
+
+    $.ajax({
+        url: fileurl,
+        success: function(result){
+             $("#result-modal .modal-title a").html(filename)
+             $("#result-modal .modal-title a").attr('href', fileurl)
+             $("#result-modal .modal-body").html(result)
+             $("#result-modal").modal('toggle')
+
+        },
+        error: function(xhr, status, error){
+             $("#result-modal .modal-title a").html(filename)
+             $("#result-modal .modal-title a").attr('href', fileurl)
+             $("#result-modal .modal-body").html(status + "\n" + error)
+             $("#result-modal").modal('toggle')
+        }
+    });
+}
 </script>
 
 {% endblock %}

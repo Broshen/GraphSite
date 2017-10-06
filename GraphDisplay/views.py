@@ -46,13 +46,11 @@ class GraphJobInterface():
             revoke(self.object.celery_task_id, terminate=True)
             self.object.status = "Stopped"
             self.object.save()
-        else:
+        else: # otherwise, queue the task
             self.object.status = "Queued"
             self.object.celery_task_id = uuid()
             self.object.save()
             run_exe.apply_async(args=[self.object.pk], task_id=self.object.celery_task_id)
-
-        # otherwise, queue the task
 
 class GraphJobCreateView(CreateView, GraphJobInterface):
     model = GraphJob
@@ -69,9 +67,6 @@ class GraphJobCreateView(CreateView, GraphJobInterface):
 
     def get_context_data(self, **kwargs):
         context = super(GraphJobCreateView, self).get_context_data(**kwargs)
-        
-
-
         return context
 
 class GraphJobManageView(TemplateView):
@@ -114,7 +109,6 @@ class GraphJobDetailView(DetailView, GraphJobInterface):
             context["action"] = "Start"
         else:
             context["action"] = "Stop"
-
         return context
 
 class GraphJobDeleteView(DeleteView):

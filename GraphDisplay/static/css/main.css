@@ -3,9 +3,9 @@
 }
 
 .fixed-center{
-	position: fixed;
-	top: 50%;
-	transform: translateY(-50%);
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .alert{
@@ -17,17 +17,17 @@
 }
 
 #graph-metrics-choices .btn-group{
-	padding: 5px 0;
-	/*display: block;*/
+    padding: 5px 0;
+    /*display: block;*/
 }
 
 #graph-name .form-control, #graph-metrics-choices .form-control{
-	display: inline;
-	width: auto;
+    display: inline;
+    width: auto;
 }
 
 #graph-metrics-choices .pad{
-	padding: 5px 0;
+    padding: 5px 0;
 }
 
 #graph-metrics-choices .info{
@@ -36,15 +36,18 @@
 
 
 #graph-metrics-descriptions{
-	text-align: right;
+    text-align: right;
 }
 
 #graph-metrics-info{
-	font-size: 2.5rem;
-	color: lightgray;
+    font-size: 2.5rem;
+    color: lightgray;
 }
 
 #graph-metrics-info:hover{
-	color: blue;
+    color: blue;
 }
 
+#result-modal .modal-body{
+    white-space: pre-line;
+}
