@@ -1,10 +1,24 @@
 {% extends 'GraphDisplay/application.html' %}
 {% block content %}
     
-    <h3> Job: {{object.name}} </h3>
-    <div>Status:    {{object.status}}</div>
-    <div>Created: {{object.created}}</div>
-    <div>Last Modified: {{object.last_modified}}</div>
+            <h3> Job: {{object.name}} </h3>
+    <div class="row">
+        <div class="col col-12 col-sm-6">
+            <div>Status:    {{object.status}}</div>
+            <div>Created: {{object.created}}</div>
+            <div>Last Modified: {{object.last_modified}}</div>
+        </div>
+        <div class="col col-12 col-sm-6">
+            <div><a href="{% url 'GraphDisplay:job_form' object.id %}">Edit </a></div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                    {{action}}
+                </button>
+            </form>
+
+        </div>
+    </div>
     <div>Graphs:
     {% include 'GraphDisplay/_graph_file_choices.html' with files=object.graph_file.all %}
     </div>
@@ -39,13 +53,6 @@
             </tbody>
         </table>
     </div>
-
-    <form action="" method="post">
-        {% csrf_token %}
-        <button type="submit" id="actual-button">
-            {{action}}
-        </button>
-    </form>
 
 
 {% endblock %}

@@ -21,7 +21,6 @@
         </div>
         <div class="col col-sm-12 col-md-7">
             <div class="form-group" id="graph-files">
-            	{{form.graph_file.data}}
                 Select the graphs to run on: {% include 'GraphDisplay/_graph_file_choices.html' with files=form.graph_file.field.queryset %}
                 <div class="graph-files-select"
                 	style="display: none;">

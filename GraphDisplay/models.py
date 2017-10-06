@@ -30,10 +30,10 @@ class ResultFile(models.Model):
 # 	adiam - no entries - outputs number
 # 	aprank - no entries - list of numbers
 # 	bbc - no entries - list of numbers
-# 	bc - no entries - list of numbers
+# 	bc - no entries - list of numbers - tends to crash
 # 	cc - no entries - 2 numbers - Connected Components, Largest Component Sizes: 
 # 	dist - 2 entries (verticies) - outputs number
-# 	ediam - no entries - outputs number
+# 	ediam - no entries - outputs number - tends to crash
 # 	emdiam - no entries - outputs number
 # 	edge - no entries - outputs number
 # 	etri - no entries - outputs number
