@@ -5,6 +5,7 @@ from . import views
 app_name = 'GraphDisplay'
 urlpatterns = [
     url(r'jobs/new$', views.GraphJobCreateView.as_view(), name='job_new'),
+    url(r'jobs/quick_profile$', views.GraphJobQuickProfileView.as_view(), name='job_quick_profile'),
     url(r'jobs/(?P<pk>[0-9]+)/view$', views.GraphJobDetailView.as_view(), name='job_view'),
     url(r'jobs/(?P<pk>[0-9]+)/edit$', views.GraphJobUpdateView.as_view(), name='job_form'),
     url(r'jobs/(?P<pk>[0-9]+)/delete$', views.GraphJobDeleteView.as_view(), name='job_delete'),

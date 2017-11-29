@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.files import File
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, DetailView, FormView, UpdateView, DeleteView, CreateView
@@ -8,7 +9,8 @@ from .forms import ALFileForm
 from .tasks import run_exe
 from celery import uuid
 from celery.task.control import revoke
-import json
+from .constants import output_file_globs
+import json, glob, os
 
 # interface to run graph jobs
 class GraphJobInterface():
@@ -44,6 +46,33 @@ class GraphJobInterface():
         # if task is currently running, get id and stop it
         if(self.object.status == "Running" or self.object.status == "Queued"):
             revoke(self.object.celery_task_id, terminate=True)
+            resultFilePks = []
+
+            for file_glob in output_file_globs:
+                output_files = glob.iglob(file_glob)
+                for output_file in output_files:
+                    # copy the output file into a resultfile object
+                    result = ResultFile()
+                    result.file = File(open(output_file))
+                    # rename the path to get rid of the /media/upload
+                    # new file is placed in the /media/results folder
+                    filename = result.file.name.split("\\")[-1]
+                    result.file.name = filename
+                    result.save()
+
+                    # delete the original file afterwards
+                    if os.path.exists(output_file):
+                        os.remove(output_file)
+
+                    # add pks to be linked to the job object later
+                    resultFilePks.append(result.pk)
+
+            # delete old result files
+            self.object.results.all().delete()
+
+            # link new result files
+            self.object.results = (resultFilePks)
+
             self.object.status = "Stopped"
             self.object.save()
         else: # otherwise, queue the task
@@ -110,6 +139,21 @@ class GraphJobDetailView(DetailView, GraphJobInterface):
         else:
             context["action"] = "Stop"
         return context
+
+class GraphJobQuickProfileView(CreateView, GraphJobInterface):
+    model = GraphJob
+    fields = ['name', 'metrics', 'graph_file',]
+
+
+    def post(self, request, *args, **kwargs):
+        super(GraphJobQuickProfileView, self).post(request, *args, **kwargs)
+        self.create_commands()
+        self.toggle_job()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('GraphDisplay:job_view',kwargs={'pk':self.object.id,})
+
 
 class GraphJobDeleteView(DeleteView):
     model = GraphJob

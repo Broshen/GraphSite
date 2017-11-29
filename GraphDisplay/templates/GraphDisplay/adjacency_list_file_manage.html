@@ -14,6 +14,7 @@
             <th></th>
             <th></th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -27,6 +28,7 @@
             <th><a href="#" onclick="openUpdateModal('{% url 'GraphDisplay:graph_update' file.id %}')">Update</a></th>
 
             <th><a href="#" onclick="openDeleteModal('{% url 'GraphDisplay:graph_delete' file.id %}', '{{file.file_name}}')">Delete</a></th>
+            <th><a href="#" onclick="openProfileModal('{% url 'GraphDisplay:job_quick_profile' %}', '{{file.file_name}}', '{{file.id}}')">Quick Profile</a></th>
         </tr>
         {% endfor %}
     </tbody>
@@ -82,6 +84,43 @@
     </div>
 </div>
 
+<div class="modal fade" id="profile_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Profile  <span class="profile_form_file_name"> </span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p> The following metrics will be computed for <b class="profile_form_file_name"> </b>:</p>
+                <div>Number of edges</div>
+
+                <div>Number of vertices</div>
+
+                <div>Number of connected components</div>
+
+                <div>Approximate diameter</div>
+
+                <div>Average clustering coefficient</div>
+                <form id="profile_form" action="" method="post" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <input type="text" name="name" class="job_name_input" value="">
+                    <textarea type="textarea" name="metrics" class="job_metrics_input"></textarea>
+                    <select name="graph_file" class="job_graph_file">
+                      <option value="" selected="" class="job_name_input"></option>
+                    </select>
+                    <button type="submit">Profile</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onClick="submitProfileForm()">Profile</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
@@ -104,5 +143,22 @@ function openDeleteModal(url, file_name){
 function submitDeleteForm(){
 	$("#delete_form button").click()
 }
+
+function openProfileModal(url, file_name, file_id){
+    $("#profile_form").attr("action", url);
+    $(".profile_form_file_name").text(file_name);
+
+
+    $(".job_name_input").attr('value', file_name+"-quick-profile");
+    $(".job_metrics_input").val('{"edge": null, "vert": null, "cc": null, "adiam": null,"lcc": "-1"}');
+    $(".job_graph_file option").attr('value', file_id)
+
+    $("#profile_modal").modal('show')
+}
+
+function submitProfileForm(){
+    $("#profile_form button").click()
+}
+
 </script>
 {% endblock %}
